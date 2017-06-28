@@ -39,7 +39,7 @@ Once you have it, you can try:
 
 2) Show information about distro:
   ```sh
-  $caca show test-vcad
+  $ caca show test-vcad
   Distro 'test-vcad':
         Name: test-vcad
         Description: test vcad distro
@@ -52,7 +52,7 @@ Once you have it, you can try:
 
 3) Search packages:
   ```sh
-  $caca  search -distro cacus-jessie -pkg 'python-cacus$' -ver "0.7-\d"
+  $ caca  search -distro cacus-jessie -pkg 'python-cacus$' -ver "0.7-\d"
   ==== Results for distro cacus-jessie ====
         Package: python-cacus
         Version: 0.7-1
@@ -60,4 +60,4 @@ Once you have it, you can try:
         Architecure: all
         Components: [unstable]
         Description: Distributed Debian repository manager
-    ```
+   ```
