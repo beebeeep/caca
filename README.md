@@ -17,18 +17,23 @@ Usage:
 First, you will need config file, `~/.cacarc` (or at other relevant path for your OS):
 ```yaml
 instances:
-    my-distro:
+    my-cacus:
+        default: true
         base_url: https://cacus.example.org/debian
         token: <token generated using "cacus --gen-token">
-    other-distro:
+    other-cacus:
         base_url: https://cacus.example.org/debian
         token: <token generated using "cacus --gen-token">
 ```
 Once you have it, you can try:
 1) Upload the packages:
   ```sh
-  $ caca upload debs/*.deb my-distro/testing
-  Uploading debs/example_1.0_all.deb... SUCCESS: Package example_1.0 was uploaded to my_distro/testing
-  Uploading debs/other_1.0_all.deb... SUCCESS: Package other_1.0 was uploaded to my_distro/testing
+  $ caca upload debs/*.deb my-distro/testing            # upload to default cacus instance
+  Uploading debs/example_1.0_all.deb... SUCCESS: Package example_1.0 was uploaded to my-distro/testing
+  Uploading debs/other_1.0_all.deb... SUCCESS: Package other_1.0 was uploaded to my-distro/testing
+  ...
+  $ caca -instance other-cacus upload debs/*.deb other-distro/testing
+  Uploading debs/example_1.0_all.deb... SUCCESS: Package example_1.0 was uploaded to other-distro/testing
+  Uploading debs/other_1.0_all.deb... SUCCESS: Package other_1.0 was uploaded to other-distro/testing
   ```
 2) Other stuff TBD

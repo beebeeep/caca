@@ -1,36 +1,44 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"gopkg.in/resty.v0"
 )
 
-func getDistroComponents(distro string) []string {
-	var distroInfo DistroInfo
+func getDistro(distro string) (*DistroShowResult, error) {
+	var result DistroShowResult
 	resp, err := resty.R().
-		SetResult(&distroInfo).
+		SetResult(&result).
 		Get("/distro/show/" + distro)
 	if err != nil {
-		fail("Cannot query cacus: %s", err)
+		return nil, cacaerr("Cannot query cacus: %s", err)
 	}
 	if resp.StatusCode() != 200 {
-		fail("Cannot query cacus: got %v", resp.Status())
+		return nil, cacaerr("Cannot query cacus: got %v", resp.Status())
 	}
-	if !distroInfo.Success {
-		fail("Cannot query cacus: got %v", distroInfo.Message)
+	if !result.Success {
+		return nil, cacaerr("Cannot query cacus: got %v", result.Message)
 	}
+
+	return &result, nil
+}
+
+func getDistroComponents(distro string) []string {
 	var availableComponents []string
+	distroInfo, err := getDistro(distro)
+	if err != nil {
+		fail("Cannot find components for distro %v", err)
+	}
 	for _, v := range distroInfo.Result {
 		if v.Distro == distro {
 			availableComponents = v.Components
 			break
 		}
-	}
-	if availableComponents == nil {
-		fail("Cannot find components for distro '%s'", distro)
 	}
 
 	return availableComponents
@@ -52,12 +60,14 @@ func uploadPackage(args []string) {
 	distro := m[1]
 	component := m[2]
 
-	if _, ok := config.Instances[distro]; !ok {
-		fail("Unknown distro '%s', please check parameters or config", distro)
-	}
+	/*
+		if _, ok := config.Instances[distro]; !ok {
+			fail("Unknown distro '%s', please check parameters or config", distro)
+		}
 
-	resty.SetHostURL(fmt.Sprintf("%s/api/v1", config.Instances[distro].BaseURL))
-	resty.SetHeader("Authorization", "Bearer "+config.Instances[distro].Token)
+		resty.SetHostURL(fmt.Sprintf("%s/api/v1", config.Instances[distro].BaseURL))
+		resty.SetHeader("Authorization", "Bearer "+config.Instances[distro].Token)
+	*/
 
 	availableComponents := getDistroComponents(distro)
 	for _, c := range availableComponents {
@@ -95,5 +105,87 @@ ok:
 			continue
 		}
 		fmt.Printf("SUCCESS: %s\n", status.Message)
+	}
+}
+
+func showDistro(args []string) {
+	for _, distro := range args {
+		fmt.Printf("Distro '%s': ", distro)
+		info, err := getDistro(distro)
+		if err != nil {
+			fmt.Printf("ERROR: %v", err)
+			continue
+		}
+		if len(info.Result) < 1 {
+			fmt.Printf("Error: not found\n")
+			continue
+		}
+		dumpDistro(info.Result[0])
+	}
+}
+
+func dumpDistro(distro DistroInfo) {
+	if len(distro.Origin) < 1 {
+		distro.Origin = "N/A"
+	}
+	fmt.Print("\n")
+	fmt.Printf("\tName: %v\n", distro.Distro)
+	fmt.Printf("\tDescription: %v\n", distro.Description)
+	fmt.Printf("\tComponents: %v\n", distro.Components)
+	fmt.Printf("\tNumber of packages: %v\n", distro.Packages)
+	fmt.Printf("\tType: %v\n", distro.Type)
+	fmt.Printf("\tOrigin: %v\n", distro.Origin)
+	fmt.Printf("\tLast updated at: %v\n", distro.Lastupdated)
+	fmt.Print("\n\n")
+}
+
+func searchPackages(args []string) {
+	terms := flag.NewFlagSet("Search Options", flag.ExitOnError)
+	distro := terms.String("distro", "", "Distro name")
+	pkg := terms.String("pkg", "", "Package regex")
+	ver := terms.String("ver", "", "Package version")
+	comp := terms.String("comp", "", "Package component")
+	descr := terms.String("descr", "", "Package description")
+	terms.Parse(args)
+
+	var url string
+	if len(*distro) > 0 {
+		url = fmt.Sprintf("/package/search/%s", *distro)
+	} else {
+		url = "/package/search"
+	}
+
+	var result PkgSearchResult
+	resp, err := resty.R().
+		SetBody(PkgSearchParams{*pkg, *ver, *comp, *descr}).
+		SetResult(&result).
+		Post(url)
+
+	if err != nil {
+		fail("Search failed: %v", err)
+	}
+	if resp.StatusCode() != 200 {
+		fail("Search failed: got %v", resp.Status())
+	}
+	for distro, entries := range result.Result {
+		fmt.Printf("\033[32m==== Results for distro \033[33m%s\033[32m ====\033[0m\n ", distro)
+		dumpSearchResult(entries)
+		fmt.Print("\n\n")
+	}
+}
+
+func dumpSearchResult(entries []PkgSearchResultEntry) {
+	if len(entries) < 1 {
+		fmt.Print("\nNothing found\n")
+	} else {
+		for _, entry := range entries {
+			fmt.Printf("\t\033[1mPackage:\033[0m %v\n", entry.Package)
+			fmt.Printf("\t\033[1mVersion:\033[0m %v\n", entry.Version)
+			fmt.Printf("\t\033[1mMaintainer:\033[0m %v\n", entry.Maintainer)
+			fmt.Printf("\t\033[1mArchitecture:\033[0m %v\n", entry.Architecture)
+			fmt.Printf("\t\033[1mComponents\033[0m: %v\n", entry.Components)
+			fmt.Printf("\t\033[1mDescription:\033[0m %v\n", strings.Replace(entry.Description, "\n", "\n\t\t", -1))
+			fmt.Print("\n")
+		}
 	}
 }
