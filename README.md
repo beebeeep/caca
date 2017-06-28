@@ -36,4 +36,28 @@ Once you have it, you can try:
   Uploading debs/example_1.0_all.deb... SUCCESS: Package example_1.0 was uploaded to other-distro/testing
   Uploading debs/other_1.0_all.deb... SUCCESS: Package other_1.0 was uploaded to other-distro/testing
   ```
-2) Other stuff TBD
+
+2) Show information about distro:
+  ```sh
+  $caca show test-vcad
+  Distro 'test-vcad':
+        Name: test-vcad
+        Description: test vcad distro
+        Components: [unstable testing stable]
+        Number of packages: 17
+        Type: general
+        Origin: N/A
+        Last updated at: 2017-06-28T11:53:10.983000 
+   ```
+
+3) Search packages:
+  ```sh
+  $caca  search -distro cacus-jessie -pkg 'python-cacus$' -ver "0.7-\d"
+  ==== Results for distro cacus-jessie ====
+        Package: python-cacus
+        Version: 0.7-1
+        Maintainer: Danila Migalin <me@miga.me.uk>
+        Architecure: all
+        Components: [unstable]
+        Description: Distributed Debian repository manager
+    ```

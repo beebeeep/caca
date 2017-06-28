@@ -178,13 +178,16 @@ func dumpSearchResult(entries []PkgSearchResultEntry) {
 	if len(entries) < 1 {
 		fmt.Print("\nNothing found\n")
 	} else {
+		para := func(f, s interface{}) {
+			fmt.Printf("\t\033[1m%v:\033[0m %v\n", f, s)
+		}
 		for _, entry := range entries {
-			fmt.Printf("\t\033[1mPackage:\033[0m %v\n", entry.Package)
-			fmt.Printf("\t\033[1mVersion:\033[0m %v\n", entry.Version)
-			fmt.Printf("\t\033[1mMaintainer:\033[0m %v\n", entry.Maintainer)
-			fmt.Printf("\t\033[1mArchitecture:\033[0m %v\n", entry.Architecture)
-			fmt.Printf("\t\033[1mComponents\033[0m: %v\n", entry.Components)
-			fmt.Printf("\t\033[1mDescription:\033[0m %v\n", strings.Replace(entry.Description, "\n", "\n\t\t", -1))
+			para("Package", entry.Package)
+			para("Version", entry.Version)
+			para("Maintainer", entry.Maintainer)
+			para("Architecure", entry.Architecture)
+			para("Components", entry.Components)
+			para("Description", strings.Replace(entry.Description, "\n", "\n\t\t", -1))
 			fmt.Print("\n")
 		}
 	}

@@ -70,6 +70,7 @@ func main() {
 
 	cfgFile := flag.String("config", defaultCfgFile, "Config file")
 	cacusInstanceName := flag.String("instance", "", "Cacus instance")
+	debug := flag.Bool("d", false, "Cacus instance")
 	flag.Parse()
 
 	config, err = loadConfig(*cfgFile)
@@ -93,6 +94,7 @@ func main() {
 		// found configuration, set up base URL and auth header
 		resty.SetHostURL(fmt.Sprintf("%s/api/v1", cacus.BaseURL))
 		resty.SetHeader("Authorization", "Bearer "+cacus.Token)
+		resty.SetDebug(*debug)
 	} else {
 		fail("Cannot find cacus instance")
 	}
