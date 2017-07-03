@@ -1,0 +1,17 @@
+Source: caca
+Section: net
+Priority: extra
+Maintainer: Daniil Migalin <me@mige.me.uk>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+#Vcs-Git: git://git.debian.org/collab-maint/dcs.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/dcs.git;a=summary
+
+Package: caca
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Built-Using: ${misc:Built-Using}
+Description: CLI tool for managing Cacus repos
+ Caca is a convenient CLI tool for managing Cacus: upload packages, search, querying distro information etc
+
+
