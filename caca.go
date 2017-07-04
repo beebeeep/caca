@@ -94,6 +94,9 @@ func main() {
 		// found configuration, set up base URL and auth header
 		resty.SetHostURL(fmt.Sprintf("%s/api/v1", cacus.BaseURL))
 		resty.SetHeader("Authorization", "Bearer "+cacus.Token)
+		if len(cacus.CaCert) > 0 {
+			resty.SetRootCertificate(cacus.CaCert)
+		}
 		resty.SetDebug(*debug)
 	} else {
 		fail("Cannot find cacus instance")

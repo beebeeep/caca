@@ -1,3 +1,9 @@
+caca (0.2) unstable; urgency=medium
+
+  * Added ca_cert option to config
+
+ -- Cacus maintainer entity <cacus@miga.me.uk>  Tue, 04 Jul 2017 10:54:18 +0000
+
 caca (0.1) unstable; urgency=medium
 
   * Initial release.

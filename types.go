@@ -4,6 +4,7 @@ package main
 
 type CacusInstance struct {
 	BaseURL string `yaml:"base_url"`
+	CaCert  string `yaml:"ca_cert"`
 	Token   string `yaml:"token"`
 	Default bool   `yaml:"default"`
 }

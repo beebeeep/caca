@@ -21,9 +21,11 @@ instances:
         default: true
         base_url: https://cacus.example.org/debian
         token: <token generated using "cacus --gen-token">
+        ca_cert: /etc/ssl/certs/ca-certificates.crt
     other-cacus:
         base_url: https://cacus.example.org/debian
         token: <token generated using "cacus --gen-token">
+        ca_cert: /etc/ssl/certs/my-ca.crt
 ```
 Once you have it, you can try:
 1) Upload the packages:
