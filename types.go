@@ -121,3 +121,21 @@ type PkgSearchResultEntry struct {
 	// Package maintainer
 	Maintainer string `json:"maintainer,omitempty"`
 }
+
+type PkgCopyParams struct {
+
+	// Package name
+	Pkg string `json:"pkg,omitempty"`
+
+	// Package version
+	Ver string `json:"ver,omitempty"`
+
+	// Package architecture
+	Arch string `json:"arch,omitempty"`
+
+	// Name of source component
+	From string `json:"from,omitempty"`
+
+	// Name of destination component
+	To string `json:"to,omitempty"`
+}

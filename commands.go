@@ -44,6 +44,16 @@ func getDistroComponents(distro string) []string {
 	return availableComponents
 }
 
+func checkComponent(component string, distro string) error {
+	availableComponents := getDistroComponents(distro)
+	for _, c := range availableComponents {
+		if component == c {
+			return nil
+		}
+	}
+	return cacaerr("Unknown component '%s'. Available components: %v", component, availableComponents)
+}
+
 func uploadPackage(args []string) {
 	if len(args) < 2 {
 		fail("USAGE: upload PACKAGE [...]  DISTRO/COMPONENT")
@@ -69,15 +79,9 @@ func uploadPackage(args []string) {
 		resty.SetHeader("Authorization", "Bearer "+config.Instances[distro].Token)
 	*/
 
-	availableComponents := getDistroComponents(distro)
-	for _, c := range availableComponents {
-		if component == c {
-			// i fucking REALLY doubt why i'm using this FUCKED language
-			goto ok
-		}
+	if err := checkComponent(component, distro); err != nil {
+		fail("%v", err)
 	}
-	fail("Unknown component '%s'. Available components: %v", component, availableComponents)
-ok:
 
 	//finally, we can upload the packages
 	for _, file := range packages {
@@ -105,6 +109,51 @@ ok:
 			continue
 		}
 		fmt.Printf("SUCCESS: %s\n", status.Message)
+	}
+}
+
+func copyPackage(args []string) {
+	terms := flag.NewFlagSet("Copy options", flag.ExitOnError)
+	distro := terms.String("distro", "", "Distro name")
+	pkg := terms.String("pkg", "", "Package name")
+	ver := terms.String("ver", "", "Package version")
+	fromComp := terms.String("from", "", "Source component")
+	toComp := terms.String("to", "", "Target component")
+	terms.Parse(args)
+
+	if err := checkComponent(*fromComp, *distro); err != nil {
+		fail("Cannot copy: %v", err)
+	}
+	if err := checkComponent(*toComp, *distro); err != nil {
+		fail("Cannot copy: %v", err)
+	}
+
+	url := fmt.Sprintf("/package/copy/%s", *distro)
+	var result CacusStatus
+	resp, err := resty.R().
+		SetBody(PkgCopyParams{*pkg, *ver, "", *fromComp, *toComp}).
+		SetResult(&result).
+		Post(url)
+	if err != nil {
+		fail("Operation failed: %v", err)
+	}
+
+	if resp.StatusCode() != 200 {
+		var msg string
+		fmt.Println(result)
+		if len(result.Message) > 0 {
+			msg = result.Message
+		} else {
+			msg = fmt.Sprintf("HTTP %v", resp.Status())
+		}
+		fail("Operation failed: %v", msg)
+	}
+
+	if !result.Success {
+		fail("Operation failed: %s", result.Message)
+	} else {
+		//fmt.Printf("Package %v_%v was copied from %v %v in distro %v\n", pkg, ver, fromComp, toComp, distro)
+		fmt.Println(result.Message)
 	}
 }
 

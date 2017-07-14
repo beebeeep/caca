@@ -56,6 +56,8 @@ func processCommand(args []string) {
 		showDistro(args[1:])
 	case "search":
 		searchPackages(args[1:])
+	case "copy":
+		copyPackage(args[1:])
 	default:
 		fail("Unknown command '%s'", args[0])
 	}
@@ -103,7 +105,7 @@ func main() {
 	}
 
 	if len(flag.Args()) < 1 {
-		fail("Specify command")
+		fail("Specify command: upload, show, search, copy")
 	}
 	processCommand(flag.Args())
 }
