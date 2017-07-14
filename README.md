@@ -63,3 +63,8 @@ Once you have it, you can try:
         Components: [unstable]
         Description: Distributed Debian repository manager
    ```
+4) Copy packages between components:
+  ```sh
+  $ caca copy -distro common -pkg python-cacus -ver 0.7.12 -from unstable -to stable 
+  Package 'python-cacus_0.7.12' was copied in distro 'common' from 'unstable' to 'stable'
+  ```
