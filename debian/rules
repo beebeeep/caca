@@ -4,12 +4,9 @@ export PROG=caca
 
 # some brain-damaged fuckers from debian once decided that sanitizing env vars in debuild would be great idea
 # replace with your stuff
-export GOROOT=/home/midanil/go
 export GOPATH=/home/midanil/src/go
 
 override_dh_auto_build:
-	echo $(GOPATH)
-	echo $(GOROOT)
 	go install
 	go build
 
